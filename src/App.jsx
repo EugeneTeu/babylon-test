@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useRef } from "react";
 import {
   FreeCamera,
   Vector3,
@@ -6,15 +6,21 @@ import {
   SceneLoader,
   MeshBuilder,
   ArcRotateCamera,
+  Color3,
+  StandardMaterial,
 } from "@babylonjs/core";
 import { useState } from "react";
 
 import "./App.css";
 import BabylonEngineComponent from "./engine";
-let box;
+
 function App() {
+  const [option, setOption] = useState(1);
+  const babylonComponent = useRef(null);
 
   const onSceneReady = async (scene) => {
+    
+    
     // This creates and positions a free camera (non-mesh)
     const camera = new ArcRotateCamera(
       "Camera",
@@ -24,8 +30,6 @@ function App() {
       Vector3.Zero(),
       scene
     );
-
-
     const canvas = scene.getEngine().getRenderingCanvas();
 
     // This attaches the camera to the canvas
@@ -46,45 +50,47 @@ function App() {
     );
 
     camera.target = result.meshes[0];
+    scene.clearColor = Color3.FromHexString("#f9fafb");
     scene.registerBeforeRender(function () {
       light.position = camera.position;
     });
-    // if (!box) {
-    //    box.position.y = 1;
-    // }
-    // // Our built-in 'box' shape.
-    // box = MeshBuilder.CreateBox("box", { size: 2 }, scene);
-
-    // biggerBox = MeshBuilder.CreateCapsule("capsule", { size: 10}, scene);
-    // biggerBox.position.y = -1;
-
-    // Move the box upward 1/2 its height
-    // box.position.y = 1;
-
-    // Our built-in 'ground' shape.
-    // MeshBuilder.CreateGround("ground", { width: 6, height: 6 }, scene);
+    
+    return scene;
   };
 
   /**
    * Will run on every frame render.  We are spinning the box on y-axis.
    */
   const onRender = (scene) => {
-    if (box !== undefined) {
-      const deltaTimeInMillis = scene.getEngine().getDeltaTime();
-      const rpm = 10;
-      // box.rotation.y += (rpm / 60) * Math.PI * 2 * (deltaTimeInMillis / 1000);
-    }
+    return scene;
   };
+
+  const BabylonComponent = useCallback(
+    () => (
+      <BabylonEngineComponent ref={babylonComponent.current} antialias={true} adaptToDeviceRatio={true} onRender={onRender} onSceneReady={onSceneReady} />
+    ),
+    [onRender, onSceneReady]
+  );
 
   return (
     <div className="canvas-container">
+     
       <h1>Sample Product viewer</h1>
       <h2>Just imagine the skull is the product</h2>
-      <div className="render-canvas">
-        <BabylonEngineComponent
-          onRender={onRender}
-          onSceneReady={onSceneReady}
-        />
+      <div className="panel">
+        <div className="panel-text-container">
+          <div className="panel-text">
+            <h2>Get a feel for what it is like to own this in advance</h2>
+            <h4>Click and drag image to view</h4>
+            <div className="panel-option-container">
+              <button onClick={() => setOption(1)}>Option 1</button>
+              <button onClick={() => setOption(2)}>Option 2</button>
+            </div>
+          </div>
+        </div>
+        <div className="render-canvas">
+          <BabylonComponent />
+        </div>
       </div>
     </div>
   );

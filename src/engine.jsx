@@ -48,7 +48,6 @@ const BabylonEngineComponent = ({
 
       if (window) {
         window.removeEventListener("resize", resize);
-        // canvas.width = window.innerWidth
         // canvas.height = window.innerHeight
       }
     };
